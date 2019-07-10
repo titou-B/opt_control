@@ -8,13 +8,13 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  tf
-  std_msgs
-  std_srvs
-  dynamic_reconfigure
-  interactive_markers
-  message_generation
+#  roscpp
+#  tf
+#  std_msgs
+#  std_srvs
+#  dynamic_reconfigure
+#  interactive_markers
+#  message_generation
 
 )
 
@@ -53,10 +53,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  Waypoints.msg
-)
+#add_message_files(
+#  FILES
+#  Waypoints.msg
+#)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -73,10 +73,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -93,9 +93,9 @@ generate_messages(
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-generate_dynamic_reconfigure_options(
-  cfg/OptControl.cfg
-)
+#generate_dynamic_reconfigure_options(
+#  cfg/OptControl.cfg
+#)
 
 ###################################
 ## catkin specific configuration ##
@@ -109,7 +109,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES opt_control
- CATKIN_DEPENDS roscpp std_msgs message_runtime
+ CATKIN_DEPENDS #roscpp std_msgs message_runtime
 #  DEPENDS system_lib
 )
 

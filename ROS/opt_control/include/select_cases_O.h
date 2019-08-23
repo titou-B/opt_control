@@ -19,10 +19,13 @@
 #include "opt_control_lib_types.h"
 
 /* Function Declarations */
-extern void b_select_cases_O(double V_init, double A_init, double P_wayp, double
+extern void b_select_cases_O(double V_init, double A_init, double V_wayp, double
+  V_max, double V_min, double A_max, double A_min, double J_max, double J_min,
+  short cases_data[], int cases_size[2]);
+extern void c_select_cases_O(double V_init, double A_init, double P_wayp, double
   V_wayp, double A_wayp, double V_max, double V_min, double A_max, double A_min,
   double J_max, double J_min, short cases_data[], int cases_size[2]);
-extern void select_cases_O(double V_init, double A_init, double V_wayp, double
+extern void select_cases_O(double V_init, double A_init, double A_wayp, double
   V_max, double V_min, double A_max, double A_min, double J_max, double J_min,
   short cases_data[], int cases_size[2]);
 

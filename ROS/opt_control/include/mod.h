@@ -20,7 +20,6 @@
 
 /* Function Declarations */
 extern short b_mod(short x);
-extern int c_mod(int x);
 
 #endif
 

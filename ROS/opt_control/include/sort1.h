@@ -19,11 +19,12 @@
 #include "opt_control_lib_types.h"
 
 /* Function Declarations */
-extern void b_sort(double x_data[], int x_size[1], int idx_data[], int idx_size
+extern void b_sort(creal_T x_data[], int x_size[1], int idx_data[], int
+                   idx_size[1]);
+extern void c_sort(double x_data[], int x_size[1], int idx_data[], int idx_size
                    [1]);
-extern void c_sort(short x_data[], int x_size[2], int idx_data[], int idx_size[2]);
 extern void d_sort(short x_data[], int x_size[2], int idx_data[], int idx_size[2]);
-extern void sort(creal_T x_data[], int x_size[1], int idx_data[], int idx_size[1]);
+extern void sort(short x_data[], int x_size[2], int idx_data[], int idx_size[2]);
 
 #endif
 

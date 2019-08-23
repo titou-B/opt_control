@@ -19,7 +19,7 @@
 #include "opt_control_lib_types.h"
 
 /* Function Declarations */
-extern void a_O_A(double A_init, double A_wayp, double J_max, double t[7]);
+extern void a_O_A(double A_init, double A_wayp, double J_max, creal_T t[7]);
 
 #endif
 

@@ -23,8 +23,8 @@ extern void solve_T(double P_init, double V_init, double A_init, double P_wayp,
                     double V_wayp, double A_wayp, double V_max, double V_min,
                     double A_max, double A_min, double J_max, double J_min,
                     double t_sync, bool b_sync_V, bool b_sync_A, bool b_sync_J,
-                    bool b_best_solution, bool b_hard_vel_limit, short
-                    solution_in, double t[11], double J[11], short *solution_out);
+                    bool b_best_solution, short solution_in, double t[7], double
+                    J[7], short *solution_out);
 
 #endif
 

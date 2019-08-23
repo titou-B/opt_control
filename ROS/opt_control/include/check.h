@@ -21,18 +21,23 @@
 /* Function Declarations */
 extern void b_check(const creal_T t_data[], const int t_size[2], const double J
                     [7], double P_init, double V_init, double A_init, double
-                    P_wayp, double V_wayp, double A_wayp, double V_max, double
-                    V_min, double A_max, double A_min, double J_max, double
-                    J_min, bool valid_data[], int valid_size[2]);
+                    V_wayp, double V_max, double V_min, double A_max, double
+                    A_min, double J_max, double J_min, bool valid_data[], int
+                    valid_size[2]);
 extern void c_check(const creal_T t_data[], const int t_size[2], const double J
                     [7], double P_init, double V_init, double A_init, double
                     P_wayp, double V_wayp, double A_wayp, double V_max, double
                     V_min, double A_max, double A_min, double J_max, double
                     J_min, bool valid_data[], int valid_size[2]);
 extern void check(const creal_T t_data[], const int t_size[2], const double J[7],
-                  double P_init, double V_init, double A_init, double V_wayp,
+                  double P_init, double V_init, double A_init, double A_wayp,
                   double V_max, double V_min, double A_max, double A_min, double
                   J_max, double J_min, bool valid_data[], int valid_size[2]);
+extern void d_check(const creal_T t_data[], const int t_size[2], const double J
+                    [7], double P_init, double V_init, double A_init, double
+                    P_wayp, double V_wayp, double A_wayp, double V_max, double
+                    V_min, double A_max, double A_min, double J_max, double
+                    J_min, bool valid_data[], int valid_size[2]);
 
 #endif
 

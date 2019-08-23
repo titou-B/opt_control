@@ -19,13 +19,11 @@
 #include "opt_control_lib_types.h"
 
 /* Function Declarations */
-extern void aceg_O_AVP(double J_max, double J_min, creal_T t_data[], int t_size
-  [2]);
-extern void b_aceg_O_AVP(double J_max, double J_min, creal_T t_data[], int
-  t_size[2]);
-extern void c_aceg_O_AVP(double P_init, double V_init, double A_init, double
-  P_wayp, double V_wayp, double A_wayp, double J_max, double J_min, creal_T
-  t_data[], int t_size[2]);
+extern void aceg_O_AVP(double A_init, double A_wayp, double J_max, double J_min,
+  creal_T t[28]);
+extern void b_aceg_O_AVP(double P_init, double V_init, double A_init, double
+  P_wayp, double V_wayp, double A_wayp, double J_max, double J_min, creal_T t[28]);
+extern void c_aceg_O_AVP(double J_max, double J_min, creal_T t[28]);
 
 #endif
 

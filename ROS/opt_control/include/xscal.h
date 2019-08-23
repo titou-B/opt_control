@@ -19,7 +19,6 @@
 #include "opt_control_lib_types.h"
 
 /* Function Declarations */
-extern void b_xscal(int n, const creal_T a, creal_T x_data[], int ix0, int incx);
 extern void xscal(int n, const creal_T a, creal_T x_data[], int ix0);
 
 #endif

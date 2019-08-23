@@ -19,17 +19,17 @@
 #include "opt_control_lib_types.h"
 
 /* Function Declarations */
-extern void synchronize_trajectory(const emxArray_real_T *P_init, const
-  emxArray_real_T *V_init, const emxArray_real_T *A_init, const emxArray_real_T *
-  P_wayp, const emxArray_real_T *V_wayp, const emxArray_real_T *A_wayp, const
-  emxArray_real_T *V_max, const emxArray_real_T *V_min, const emxArray_real_T
-  *A_max, const emxArray_real_T *A_min, const emxArray_real_T *J_max, const
-  emxArray_real_T *J_min, const emxArray_boolean_T *b_sync_V, const
-  emxArray_boolean_T *b_sync_A, const emxArray_boolean_T *b_sync_J, const
-  emxArray_boolean_T *b_sync_W, const emxArray_boolean_T *b_best_solution, const
-  emxArray_boolean_T *b_hard_vel_limit, const emxArray_real_T *T_catch_up, const
-  emxArray_int16_T *solution_in, emxArray_cell_wrap_0 *t, emxArray_cell_wrap_0
-  *J, emxArray_int16_T *solution_out);
+extern void synchronize_trajectory(emxArray_real_T *P_init, emxArray_real_T
+  *V_init, emxArray_real_T *A_init, emxArray_real_T *P_wayp, emxArray_real_T
+  *V_wayp, emxArray_real_T *A_wayp, const emxArray_real_T *V_max, const
+  emxArray_real_T *V_min, const emxArray_real_T *A_max, const emxArray_real_T
+  *A_min, emxArray_real_T *J_max, emxArray_real_T *J_min, const
+  emxArray_boolean_T *b_sync_V, const emxArray_boolean_T *b_sync_A, const
+  emxArray_boolean_T *b_sync_J, const emxArray_boolean_T *b_sync_W, const
+  emxArray_boolean_T *b_best_solution, const emxArray_boolean_T
+  *b_hard_vel_limit, const emxArray_real_T *T_catch_up, const emxArray_int16_T
+  *solution_in, emxArray_cell_wrap_0 *t, emxArray_cell_wrap_0 *J,
+  emxArray_int16_T *solution_out);
 
 #endif
 

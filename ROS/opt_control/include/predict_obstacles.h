@@ -19,9 +19,8 @@
 #include "opt_control_lib_types.h"
 
 /* Function Declarations */
-extern void predict_obstacles(const emxArray_real_T *Obstacles, const
-  emxArray_real_T *VP_wayp, const emxArray_real_T *AP_wayp, emxArray_real_T
-  *Obstacles_predicted);
+extern void predict_obstacles(emxArray_real_T *Obstacles, const emxArray_real_T *
+  VP_wayp, const emxArray_real_T *AP_wayp);
 
 #endif
 

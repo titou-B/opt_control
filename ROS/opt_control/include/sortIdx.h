@@ -19,10 +19,10 @@
 #include "opt_control_lib_types.h"
 
 /* Function Declarations */
-extern void b_merge(int idx_data[], short x_data[], int offset, int np, int nq,
-                    int iwork_data[], short xwork_data[]);
 extern void b_sortIdx(short x_data[], int x_size[1], int idx_data[], int
                       idx_size[1]);
+extern void merge(int idx_data[], short x_data[], int offset, int np, int nq,
+                  int iwork_data[], short xwork_data[]);
 extern void sortIdx(double x_data[], int x_size[1], int idx_data[], int
                     idx_size[1]);
 

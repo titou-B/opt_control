@@ -20,15 +20,14 @@
 
 /* Function Declarations */
 extern void b_sum(const emxArray_real_T *x, emxArray_real_T *y);
-extern double c_sum(const double x[3]);
-extern void d_sum(const creal_T x_data[], const int x_size[2], creal_T y_data[],
+extern void c_sum(const creal_T x_data[], const int x_size[2], creal_T y_data[],
                   int y_size[1]);
-extern void e_sum(const bool x_data[], const int x_size[2], double y[11]);
-extern double f_sum(const double x[11]);
-extern void g_sum(const double x_data[], const int x_size[2], double y_data[],
+extern void d_sum(const bool x_data[], const int x_size[2], double y[7]);
+extern double e_sum(const double x[7]);
+extern void f_sum(const double x_data[], const int x_size[2], double y_data[],
                   int y_size[1]);
-extern double h_sum(const emxArray_real_T *x);
-extern void i_sum(const creal_T x_data[], const int x_size[2], creal_T y_data[],
+extern double g_sum(const emxArray_real_T *x);
+extern void h_sum(const creal_T x_data[], const int x_size[2], creal_T y_data[],
                   int y_size[1]);
 extern void sum(const emxArray_boolean_T *x, emxArray_real_T *y);
 

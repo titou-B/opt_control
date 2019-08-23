@@ -24,22 +24,22 @@ extern void b_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void c_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void d_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void e_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
-extern void f_rtErrorWithMessageID(const int b, const char *c, const
-  rtRunTimeErrorInfo *aInfo);
+extern void f_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void g_rtErrorWithMessageID(const int b, const char *c, const
   rtRunTimeErrorInfo *aInfo);
 extern void h_rtErrorWithMessageID(const int b, const char *c, const
   rtRunTimeErrorInfo *aInfo);
-extern void i_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
+extern void i_rtErrorWithMessageID(const int b, const char *c, const
+  rtRunTimeErrorInfo *aInfo);
 extern void j_rtErrorWithMessageID(const int b, const char *c, const
   rtRunTimeErrorInfo *aInfo);
 extern void k_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void l_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void m_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void n_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
-extern void o_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
-extern void p_rtErrorWithMessageID(const int b, const char *c, const
+extern void o_rtErrorWithMessageID(const int b, const char *c, const
   rtRunTimeErrorInfo *aInfo);
+extern void p_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void q_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void r_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
 extern void rtDimSizeEqError(const int aDim1, const int aDim2, const
@@ -60,11 +60,7 @@ extern void rtSubAssignSizeCheck(const int *aDims1, const int aNDims1, const int
 extern double rt_atan2d_snf(double u0, double u1);
 extern double rt_hypotd_snf(double u0, double u1);
 extern double rt_powd_snf(double u0, double u1);
-extern void s_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
-extern void t_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
-extern void u_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
-extern void v_rtErrorWithMessageID(const rtRunTimeErrorInfo *aInfo);
-extern void w_rtErrorWithMessageID(const int b, const int c, const
+extern void s_rtErrorWithMessageID(const int b, const int c, const
   rtRunTimeErrorInfo *aInfo);
 
 #endif

@@ -46,53 +46,83 @@
 //#include <nav_msgs/Path.h>
 //#include <dynamic_reconfigure/server.h>
 //#include <opt_control/OptControlConfig.h>
-#include <visualization_msgs/Marker.h>
+//#include <visualization_msgs/Marker.h>
 //#include "opt_control/Waypoints.h"
 
 //#include "ros/ros.h"
 
 #include <iostream>
+#include <vector>
+#include <math.h>
 
+#include <fstream>
 
-//void exportDatas(emxArray_real_T _P, emxArray_real_T _V, emxArray_real_T _A, emxArray_real_T _J,
-//		emxArray_real_T _T, std::string name)
-//{
-//	double duration,tic;
-//	duration = SmTraj.getDuration();
-//
-//	const unsigned N=2000;
-//
-//	tic = duration/N;
-//	std::vector<SM_COND> cond(2);
-//	std::vector<double> x(N),y(N),vx(N),vy(N),ax(N),ay(N),t(N);
-//
-//	std::fstream fs;
-//	fs.open ("data"+name+".m",  std::fstream::out);
-//	fs << " X=zeros(2,"<< N <<");" << std::endl;
-//	fs << " dX=zeros(2,"<< N <<");" << std::endl;
-//	fs << " ddX=zeros(2,"<< N <<");" << std::endl;
-//	fs << " T=zeros(1,"<< N <<");" << std::endl;
-//
-//	for(int j=0;j<N;j++)  {
-//		SmTraj.getMotionCond(tic*j,cond);
-//		x[j]= cond[0].x;
-//		y[j]=cond[1].x;
-//		fs << " X(:,"<< j+1 <<")=[" << x[j] << ";" << y[j] <<"];" << std::endl;
-//
-//		vx[j]= cond[0].v;
-//		vy[j]=cond[1].v;
-//		fs << " dX(:,"<< j+1 <<")=[" << vx[j] << ";" << vy[j] <<"];" << std::endl;
-//
-//		ax[j]= cond[0].a;
-//		ay[j]=cond[1].a;
-//		fs << " ddX(:,"<< j+1 <<")=[" << ax[j] << ";" << ay[j] <<"];" << std::endl;
-//
-//		t[j] = tic*j;
-//		fs << " T(1,"<< j+1 <<")=" << t[j] << ";" << std::endl;
-//	}
-//	fs.close();
-//}
+void exportDatas(
+		double* p_init,
+		double* v_init,
+		double* a_init,
+		std::vector<std::vector<std::vector<double>>> & wps,
+		emxArray_real_T *T_waypoints,
+		emxArray_real_T* t,
+		emxArray_real_T* p,
+		emxArray_real_T* v,
+		emxArray_real_T* a,
+		emxArray_real_T* j,
+		std::string name
+		)
+{
+	int rollout_iterations = p->size[1];
 
+	std::fstream fs;
+	fs.open( "data"+name+".m",  std::fstream::out );
+
+	//declaration
+	//waypoints
+	fs << " wpT=zeros(2," << wps.size() + 1 << ");" << std::endl;
+	fs << " wpX=zeros(2," << wps.size() + 1 << ");" << std::endl;
+	fs << " wpdX=zeros(2," << wps.size() + 1 << ");" << std::endl;
+	fs << " wpddX=zeros(2," << wps.size() + 1 << ");" << std::endl;
+	//setpoints
+	fs << " X=zeros(2," << rollout_iterations << ");" << std::endl;
+	fs << " dX=zeros(2," << rollout_iterations << ");" << std::endl;
+	fs << " ddX=zeros(2," << rollout_iterations << ");" << std::endl;
+	fs << " dddX=zeros(2," << rollout_iterations << ");" << std::endl;
+	fs << " T=zeros(1," << rollout_iterations << ");" << std::endl;
+
+	//filling
+	//waypoints
+	fs << " wpT"<<"(:,1)=[0;0];"<<std::endl;
+	fs << " wpX"<<"(:,1)=["<<p_init[0]<<";"<<p_init[1]<<"];"<<std::endl;
+	fs << " wpdX"<<"(:,1)=["<<v_init[0]<<";"<<v_init[1]<<"];"<<std::endl;
+	fs << " wpddX"<<"(:,1)=["<<a_init[0]<<";"<<a_init[1]<<"];"<<std::endl;
+	std::vector<double> wpT {0.0, 0.0};
+	for( int i = 0; i < wps.size(); ++i )
+	{
+		wpT[0]+=T_waypoints->data[0 + T_waypoints->size[0] * i];
+		wpT[1]+=T_waypoints->data[1 + T_waypoints->size[0] * i];
+		fs << " wpT"<<"(:,"<<i+2<<")=["<<wpT[0]<<";"<<wpT[1]<<"];"<<std::endl;
+		fs << " wpX"<<"(:,"<<i+2<<")=["<<wps[i][0][0]<<";"<<wps[i][1][0]<<"];"<<std::endl;
+		fs << " wpdX"<<"(:,"<<i+2<<")=["<<wps[i][0][1]<<";"<<wps[i][1][1]<<"];"<<std::endl;
+		fs << " wpddX"<<"(:,"<<i+2<<")=["<<wps[i][0][2]<<";"<<wps[i][1][2]<<"];"<<std::endl;
+
+	}
+	//setpoints
+	for ( int i = 0; i < rollout_iterations; ++i ) {
+		fs << " X(:,"<< i + 1 << ")=[" << p->data[i * p->size[0] + 0]
+			<< ";" << p->data[i * p->size[0] + 1] << "];" << std::endl;
+		fs << " dX(:,"<< i + 1 << ")=[" << v->data[i * v->size[0] + 0]
+			<< ";" << v->data[i * v->size[0] + 1] << "];" << std::endl;
+		fs << " ddX(:,"<< i + 1 << ")=[" << a->data[i * a->size[0] + 0]
+			<< ";" << a->data[i * a->size[0] + 1] << "];" << std::endl;
+		fs << " dddX(:,"<< i + 1 << ")=[" << j->data[i * j->size[0] + 0]
+			<< ";" << j->data[i * j->size[0] + 1] << "];" << std::endl;
+		fs << " T(1,"<< i + 1 <<")=" <<  t->data[i * p->size[0] + 1] << ";" << std::endl;
+	}
+
+	fs.close();
+
+	std::cout << "Data exported successfully !" << std::endl;
+}
 
 
 
@@ -267,21 +297,21 @@ void exemple1()
 
 	// init state
 	double P_init[ndof] = {-1.0, -1.0};
-	double V_init[ndof] = {0.0, 0.0};	// !!! cannot be 0.0
-	double A_init[ndof] = {0.0, 0.0};	// !!! cannot be 0.0
+	double V_init[ndof] = {0.0, 0.0};
+	double A_init[ndof] = {0.0, 0.0};
 
 	// WP 1
 	// Axis 1
 	waypointAxis[0] = 0;	// pos
-	waypointAxis[1] = 0.1;	// vel
+	waypointAxis[1] = NAN;	// vel
 	waypointAxis[2] = NAN;	// acc
-	waypointAxis[3] = 0;	// vel prediction
-	waypointAxis[4] = 0;	// acc prediction
+	waypointAxis[3] = 0.0;	// vel prediction
+	waypointAxis[4] = 0.0;	// acc prediction
 	waypoint.at(0) = waypointAxis;
 	// Axis 2
-	waypointAxis[0] = 0;	// pos
-	waypointAxis[1] = 0.2;	// vel
-	waypointAxis[2] = 0.6;	// acc
+	waypointAxis[0] = 1;	// pos
+	waypointAxis[1] = NAN;	// vel
+	waypointAxis[2] = NAN;	// acc
 	waypointAxis[3] = 0;	// vel prediction
 	waypointAxis[4] = 0;	// acc prediction
 	waypoint.at(1) = waypointAxis;
@@ -289,37 +319,37 @@ void exemple1()
 
 	// WP 2
 	// Axis 1
+	waypointAxis[0] = 4;	// pos
+	waypointAxis[1] = NAN;	// vel
+	waypointAxis[2] = NAN;	// acc
+	waypointAxis[3] = 0;	// vel prediction
+	waypointAxis[4] = 0;	// acc prediction
+	waypoint.at(0) = waypointAxis;
+	// Axis 2
 	waypointAxis[0] = 2;	// pos
+	waypointAxis[1] = NAN;	// vel
+	waypointAxis[2] = NAN;	// acc
+	waypointAxis[3] = 0;	// vel prediction
+	waypointAxis[4] = 0;	// acc prediction
+	waypoint.at(1) = waypointAxis;
+	waypoints.push_back(waypoint);
+
+	// WP 3
+	// Axis 1
+	waypointAxis[0] = 5;	// pos
 	waypointAxis[1] = 0;	// vel
 	waypointAxis[2] = 0;	// acc
 	waypointAxis[3] = 0;	// vel prediction
 	waypointAxis[4] = 0;	// acc prediction
 	waypoint.at(0) = waypointAxis;
 	// Axis 2
-	waypointAxis[0] = 2;	// pos
+	waypointAxis[0] = 5;	// pos
 	waypointAxis[1] = 0;	// vel
 	waypointAxis[2] = 0;	// acc
 	waypointAxis[3] = 0;	// vel prediction
 	waypointAxis[4] = 0;	// acc prediction
 	waypoint.at(1) = waypointAxis;
 	waypoints.push_back(waypoint);
-
-//	// WP 3
-//	// Axis 1
-//	waypointAxis[0] = 0;	// pos
-//	waypointAxis[1] = NAN;	// vel
-//	waypointAxis[2] = NAN;	// acc
-//	waypointAxis[3] = 0;	// vel prediction
-//	waypointAxis[4] = 0;	// acc prediction
-//	waypoint.at(0) = waypointAxis;
-//	// Axis 2
-//	waypointAxis[0] = 2;	// pos
-//	waypointAxis[1] = NAN;	// vel
-//	waypointAxis[2] = NAN;	// acc
-//	waypointAxis[3] = 0;	// vel prediction
-//	waypointAxis[4] = 0;	// acc prediction
-//	waypoint.at(1) = waypointAxis;
-//	waypoints.push_back(waypoint);
 
 	int nwp = waypoints.size();
 
@@ -332,12 +362,12 @@ void exemple1()
 	double J_min[ndof] = {-1.0, -1.0};
 
 	// configuration gt
-	double A_global[ndof];
+	double A_global = 0.0;
 
 	bool b_sync_V = true;
 	bool b_sync_A = true;
-	bool b_sync_J = true;
-	bool b_sync_W = true;
+	bool b_sync_J = false;
+	bool b_sync_W = false;
 
 	bool b_comp_global = false;
 	bool b_rotate = false;
@@ -408,14 +438,6 @@ void exemple1()
 	b_catch_up_in = c_argInit_UnboundedxUnbounded_b(ndof, nwp);
 	solution_in = c_argInit_Unboundedx2xUnbounded(ndof, nwp);
 
-//	std::cout << "State_start :" << std::endl;
-//	for ( int i = 0; i < ndof; ++i )
-//	{
-//		std::cout << "index : " << i << std::endl;
-//		std::cout << "\tpos : " << P_init[i] << std::endl;
-//		std::cout << "\tvel : " << V_init[i] << std::endl;
-//		std::cout << "\tacc : " << A_init[i] << std::endl;
-//	}
 
 
 	for (int idx_traj = 0; idx_traj < nwp; idx_traj++)
@@ -446,7 +468,7 @@ void exemple1()
 			A_min_in->data[idx_axis + A_min_in->size[0] * idx_traj] = A_min[idx_axis];
 			J_max_in->data[idx_axis + J_max_in->size[0] * idx_traj] = J_max[idx_axis];
 			J_min_in->data[idx_axis + J_min_in->size[0] * idx_traj] = J_min[idx_axis];
-			A_global_in->data[idx_axis]  = A_global[idx_axis];
+			A_global_in->data[idx_axis]  = A_global;
 			b_comp_global_in             = b_comp_global;
 			b_sync_V_in->data[idx_axis + b_sync_V_in->size[0] * idx_traj] = b_sync_V;
 			b_sync_A_in->data[idx_axis + b_sync_A_in->size[0] * idx_traj] = b_sync_A;
@@ -459,12 +481,6 @@ void exemple1()
 		}
 	}
 
-//	std::cout << "State_start_in : " << std::endl;
-//	for (int idx0 = 0; idx0 < State_start_in->size[0U]; idx0++) {
-//		for (int idx1 = 0; idx1 < 3; idx1++) {
-//			std::cout << State_start_in->data[idx0 + State_start_in->size[0] * idx1] << std::endl;
-//		}
-//	}
 
 	double ts_rollout = 0.1;
 
@@ -483,35 +499,38 @@ void exemple1()
 	int rollout_iterations = P_rollout->size[1];
 	printf("rollout_iterations = %i\n", rollout_iterations);
 
-//	std::cout << "T_waypoints size = " << T_waypoints->size[0] << " " << T_waypoints->size[1] << std::endl;
-//	for (int idx_traj = 0; idx_traj < nwp; idx_traj++)
-//	{
-//		for (int idx_axis = 0; idx_axis < ndof; idx_axis++)
-//		{
-//			std::cout << "wp : " << idx_traj << ", ndof : " << idx_axis
-//					<< ", t = " << T_waypoints->data[idx_axis + T_waypoints->size[0] * idx_traj] << std::endl;
-//		}
-//	}
+	std::cout << "T_waypoints size = " << T_waypoints->size[0] << " " << T_waypoints->size[1] << std::endl;
+	for (int idx_traj = 0; idx_traj < nwp; idx_traj++)
+	{
+		for (int idx_axis = 0; idx_axis < ndof; idx_axis++)
+		{
+			std::cout << "wp : " << idx_traj << ", ndof : " << idx_axis
+					<< ", t = " << T_waypoints->data[idx_axis + T_waypoints->size[0] * idx_traj] << std::endl;
+		}
+	}
 
-//	std::cout << "P_rollout size = " << P_rollout->size[0] << " " << P_rollout->size[1] << std::endl;
-//	for (int idx_traj = 0; idx_traj < nwp; idx_traj++)
-//	{
-//		for (int idx_axis = 0; idx_axis < ndof; idx_axis++)
-//		{
-//			std::cout << "wp : " << idx_traj << ", ndof : " << idx_axis
-//					<< ", t = " << T_waypoints->data[idx_axis + T_waypoints->size[0] * idx_traj] << std::endl;
-//		}
-//	}
+	std::cout << "P_rollout size = " << P_rollout->size[0] << " " << P_rollout->size[1] << std::endl;
+	for (int idx_traj = 0; idx_traj < nwp; idx_traj++)
+	{
+		for (int idx_axis = 0; idx_axis < ndof; idx_axis++)
+		{
+			std::cout << "wp : " << idx_traj << ", ndof : " << idx_axis
+					<< ", t = " << T_waypoints->data[idx_axis + T_waypoints->size[0] * idx_traj] << std::endl;
+		}
+	}
 
 //    for ( int i = 0; i < rollout_iterations; ++i ) {
-//      std::cout << "axis n, t : " << t_rollout->data[i * P_rollout->size[0] + 1] << std::endl;
-//      std::cout << "axis 1, p : " << P_rollout->data[i * P_rollout->size[0] + 0] << std::endl;
-//      std::cout << "axis 2, p : " << P_rollout->data[i * P_rollout->size[0] + 1] << std::endl;
-//      std::cout << "axis 1, v : " << V_rollout->data[i * V_rollout->size[0] + 0] << std::endl;
-//      std::cout << "axis 2, v : " << V_rollout->data[i * V_rollout->size[0] + 1] << std::endl;
-//      std::cout << "axis 1, a : " << A_rollout->data[i * A_rollout->size[0] + 0] << std::endl;
-//      std::cout << "axis 2, a : " << A_rollout->data[i * A_rollout->size[0] + 1] << std::endl;
+//		std::cout << "axis n, t : " << t_rollout->data[i * P_rollout->size[0] + 1] << std::endl;
+//		std::cout << "axis 1, p : " << P_rollout->data[i * P_rollout->size[0] + 0] << std::endl;
+//		std::cout << "axis 2, p : " << P_rollout->data[i * P_rollout->size[0] + 1] << std::endl;
+//		std::cout << "axis 1, v : " << V_rollout->data[i * V_rollout->size[0] + 0] << std::endl;
+//		std::cout << "axis 2, v : " << V_rollout->data[i * V_rollout->size[0] + 1] << std::endl;
+//		std::cout << "axis 1, a : " << A_rollout->data[i * A_rollout->size[0] + 0] << std::endl;
+//		std::cout << "axis 2, a : " << A_rollout->data[i * A_rollout->size[0] + 1] << std::endl;
 //    }
+
+    exportDatas( P_init, V_init, A_init, waypoints, T_waypoints,
+    		t_rollout, P_rollout, V_rollout, A_rollout, J_rollout, "1" );
 
 
 	emxDestroyArray_real_T(J_rollout);
@@ -551,239 +570,3 @@ int main(int argc, char **argv)
 	exemple1();
 }
 
-//int main_from_marius(int argc, char **argv)
-//{
-//  ros::init(argc, argv, "opt_control_node");
-//
-//  opt_control_lib_initialize();
-//
-//  dynamic_reconfigure::Server<opt_control::OptControlConfig> server;
-//  dynamic_reconfigure::Server<opt_control::OptControlConfig>::CallbackType f;
-//
-//  f = boost::bind(&dynamic_reconfigure_callback, _1, _2);
-//  server.setCallback(f);
-//
-//  ros::NodeHandle nh;
-//  ros::Rate loop_rate(50);
-//
-//  ros::Publisher path_pub                         = nh.advertise<nav_msgs::Path>("trajectory_rollout", 0);
-//  ros::Publisher marker_waypoint_position_pub     = nh.advertise<visualization_msgs::Marker>( "waypoint_position", 0 );
-//  ros::Publisher marker_waypoint_velocity_pub     = nh.advertise<visualization_msgs::Marker>( "waypoint_velocity", 0 );
-//  ros::Publisher marker_waypoint_acceleration_pub = nh.advertise<visualization_msgs::Marker>( "waypoint_acceleration", 0 );
-//
-//  ros::Subscriber waypoint_sub = nh.subscribe("Waypoints", 1, waypoints_callback,ros::TransportHints().tcpNoDelay());
-//
-//  double markersize = 0.1;
-//  visualization_msgs::Marker marker_waypoint_position;
-//  marker_waypoint_position.header.frame_id = "map";
-//  marker_waypoint_position.type = visualization_msgs::Marker::SPHERE;
-//  marker_waypoint_position.action = visualization_msgs::Marker::ADD;
-//  marker_waypoint_position.color.r = 1.0;
-//  marker_waypoint_position.color.g = 0.0;
-//  marker_waypoint_position.color.b = 0.0;
-//  marker_waypoint_position.color.a = 0.5;
-//  marker_waypoint_position.scale.x = markersize;
-//  marker_waypoint_position.scale.y = markersize;
-//  marker_waypoint_position.scale.z = markersize;
-//
-//  visualization_msgs::Marker marker_waypoint_velocity;
-//  marker_waypoint_velocity.points.resize(2);
-//  marker_waypoint_velocity.header.frame_id = "map";
-//  marker_waypoint_velocity.type = visualization_msgs::Marker::ARROW;
-//  marker_waypoint_velocity.action = visualization_msgs::Marker::ADD;
-//  marker_waypoint_velocity.color.r = 0.0;
-//  marker_waypoint_velocity.color.g = 1.0;
-//  marker_waypoint_velocity.color.b = 0.0;
-//  marker_waypoint_velocity.color.a = 0.5;
-//  marker_waypoint_velocity.scale.x = markersize * 0.5;
-//  marker_waypoint_velocity.scale.y = markersize;
-//  marker_waypoint_velocity.scale.z = 0.0;
-//
-//  visualization_msgs::Marker marker_waypoint_acceleration;
-//  marker_waypoint_acceleration.points.resize(2);
-//  marker_waypoint_acceleration.header.frame_id = "map";
-//  marker_waypoint_acceleration.type = visualization_msgs::Marker::ARROW;
-//  marker_waypoint_acceleration.action = visualization_msgs::Marker::ADD;
-//  marker_waypoint_acceleration.color.r = 0.0;
-//  marker_waypoint_acceleration.color.g = 0.0;
-//  marker_waypoint_acceleration.color.b = 1.0;
-//  marker_waypoint_acceleration.color.a = 0.5;
-//  marker_waypoint_acceleration.scale.x = markersize * 0.5;
-//  marker_waypoint_acceleration.scale.y = markersize;
-//  marker_waypoint_acceleration.scale.z = 0.0;
-//
-//  nav_msgs::Path path_rollout;
-//  path_rollout.header.frame_id = "map";
-//
-//  //Inputs
-//  emxArray_real_T *State_start_in;
-//  emxArray_real_T *Waypoints_in;
-//  emxArray_real_T *V_max_in;
-//  emxArray_real_T *V_min_in;
-//  emxArray_real_T *A_max_in;
-//  emxArray_real_T *A_min_in;
-//  emxArray_real_T *J_max_in;
-//  emxArray_real_T *J_min_in;
-//  emxArray_real_T *A_global_in;
-//  emxArray_boolean_T *b_sync_V_in;
-//  emxArray_boolean_T *b_sync_A_in;
-//  emxArray_boolean_T *b_sync_J_in;
-//  emxArray_boolean_T *b_sync_W_in;
-//  emxArray_boolean_T *b_rotate_in;
-//  emxArray_boolean_T *b_best_solution_in;
-//  emxArray_boolean_T *b_hard_vel_limit_in;
-//  emxArray_boolean_T *b_catch_up_in;
-//  bool b_comp_global_in;
-//  emxArray_int16_T *solution_in;
-//
-//  //Outputs
-//  emxArray_struct0_T *J_setp_struct;
-//  emxArray_int16_T *solution_out;
-//  emxArray_real_T *T_waypoints;
-//  emxArray_real_T *P_rollout;
-//  emxArray_real_T *V_rollout;
-//  emxArray_real_T *A_rollout;
-//  emxArray_real_T *J_rollout;
-//  emxArray_real_T *t_rollout;
-//  emxInitArray_struct0_T(&J_setp_struct, 2);
-//  emxInitArray_int16_T(&solution_out, 3);
-//  emxInitArray_real_T(&T_waypoints, 2);
-//  emxInitArray_real_T(&P_rollout, 2);
-//  emxInitArray_real_T(&V_rollout, 2);
-//  emxInitArray_real_T(&A_rollout, 2);
-//  emxInitArray_real_T(&J_rollout, 2);
-//  emxInitArray_real_T(&t_rollout, 2);
-//
-//
-//  State_start_in = argInit_Unboundedx3_real_T();
-//  Waypoints_in = c_argInit_Unboundedx5xUnbounded();
-//  V_max_in = c_argInit_UnboundedxUnbounded_r();
-//  V_min_in = c_argInit_UnboundedxUnbounded_r();
-//  A_max_in = c_argInit_UnboundedxUnbounded_r();
-//  A_min_in = c_argInit_UnboundedxUnbounded_r();
-//  J_max_in = c_argInit_UnboundedxUnbounded_r();
-//  J_min_in = c_argInit_UnboundedxUnbounded_r();
-//  A_global_in = argInit_Unboundedx1_real_T();
-//  b_sync_V_in = c_argInit_UnboundedxUnbounded_b();
-//  b_sync_A_in = c_argInit_UnboundedxUnbounded_b();
-//  b_sync_J_in = c_argInit_UnboundedxUnbounded_b();
-//  b_sync_W_in = c_argInit_UnboundedxUnbounded_b();
-//  b_rotate_in = argInit_1xUnbounded_boolean_T();
-//  b_best_solution_in = c_argInit_UnboundedxUnbounded_b();
-//  b_hard_vel_limit_in = c_argInit_UnboundedxUnbounded_b();
-//  b_catch_up_in = c_argInit_UnboundedxUnbounded_b();
-//  solution_in = c_argInit_Unboundedx2xUnbounded();
-//
-//  while (ros::ok()){
-//
-//    ros::spinOnce();
-//    double t = ros::Time::now().toSec();
-//    ros::Time t_header(t);
-//
-//    marker_waypoint_position.header.stamp = t_header;
-//    marker_waypoint_position.pose.position.x = P_wayp[0];
-//    marker_waypoint_position.pose.position.y = P_wayp[1];
-//    marker_waypoint_position.pose.position.z = P_wayp[2];
-//    marker_waypoint_position_pub.publish(marker_waypoint_position);
-//
-//    marker_waypoint_velocity.header.stamp = t_header;
-//    marker_waypoint_velocity.points[0].x = P_wayp[0];
-//    marker_waypoint_velocity.points[0].y = P_wayp[1];
-//    marker_waypoint_velocity.points[0].z = P_wayp[2];
-//    marker_waypoint_velocity.points[1].x = P_wayp[0] + V_wayp[0];
-//    marker_waypoint_velocity.points[1].y = P_wayp[1] + V_wayp[1];
-//    marker_waypoint_velocity.points[1].z = P_wayp[2] + V_wayp[2];
-//    marker_waypoint_velocity_pub.publish(marker_waypoint_velocity);
-//
-//    marker_waypoint_acceleration.header.stamp = t_header;
-//    marker_waypoint_acceleration.points[0].x = P_wayp[0];
-//    marker_waypoint_acceleration.points[0].y = P_wayp[1];
-//    marker_waypoint_acceleration.points[0].z = P_wayp[2];
-//    marker_waypoint_acceleration.points[1].x = P_wayp[0] + A_wayp[0];
-//    marker_waypoint_acceleration.points[1].y = P_wayp[1] + A_wayp[1];
-//    marker_waypoint_acceleration.points[1].z = P_wayp[2] + A_wayp[2];
-//    marker_waypoint_acceleration_pub.publish(marker_waypoint_acceleration);
-//
-//
-//    for (int idx_traj = 0; idx_traj < nwp; idx_traj++) {
-//      for (int idx_axis = 0; idx_axis < ndof; idx_axis++) {
-//        State_start_in->data[idx_axis + State_start_in->size[0] * 0] = P_init[idx_axis];
-//        State_start_in->data[idx_axis + State_start_in->size[0] * 1] = V_init[idx_axis];
-//        State_start_in->data[idx_axis + State_start_in->size[0] * 2] = A_init[idx_axis];
-//        Waypoints_in->data[(idx_axis + Waypoints_in->size[0] * 0) + Waypoints_in->size[0] * Waypoints_in->size[1] * idx_traj] = P_wayp[idx_axis];
-//        Waypoints_in->data[(idx_axis + Waypoints_in->size[0] * 1) + Waypoints_in->size[0] * Waypoints_in->size[1] * idx_traj] = V_wayp[idx_axis];
-//        Waypoints_in->data[(idx_axis + Waypoints_in->size[0] * 2) + Waypoints_in->size[0] * Waypoints_in->size[1] * idx_traj] = A_wayp[idx_axis];
-//        V_max_in->data[idx_axis + V_max_in->size[0] * idx_traj] = V_max;
-//        V_min_in->data[idx_axis + V_min_in->size[0] * idx_traj] = V_min;
-//        A_max_in->data[idx_axis + A_max_in->size[0] * idx_traj] = A_max;
-//        A_min_in->data[idx_axis + A_min_in->size[0] * idx_traj] = A_min;
-//        J_max_in->data[idx_axis + J_max_in->size[0] * idx_traj] = J_max;
-//        J_min_in->data[idx_axis + J_min_in->size[0] * idx_traj] = J_min;
-//        A_global_in->data[idx_axis]  = A_global[idx_axis];
-//        b_comp_global_in             = b_comp_global;
-//        b_sync_V_in->data[idx_axis + b_sync_V_in->size[0] * idx_traj] = b_sync_V;
-//        b_sync_A_in->data[idx_axis + b_sync_A_in->size[0] * idx_traj] = b_sync_A;
-//        b_sync_J_in->data[idx_axis + b_sync_J_in->size[0] * idx_traj] = b_sync_J;
-//        b_sync_W_in->data[idx_axis + b_sync_W_in->size[0] * idx_traj] = b_sync_W;
-//        b_rotate_in->data[b_rotate_in->size[0] * idx_axis]                            = b_rotate;
-//        b_best_solution_in->data[idx_axis + b_best_solution_in->size[0] * idx_traj]   = b_best_solution;
-//        b_hard_vel_limit_in->data[idx_axis + b_hard_vel_limit_in->size[0] * idx_traj] = b_hard_vel_limit;
-//        b_catch_up_in->data[idx_axis + b_catch_up_in->size[0] * idx_traj]             = b_catch_up;
-//      }
-//    }
-//
-//    double ts_rollout = 0.1;
-//
-//    double t_timing_start = clock();
-//    opt_control_lib(State_start_in, Waypoints_in, V_max_in, V_min_in, A_max_in, A_min_in, J_max_in, J_min_in, A_global_in, b_comp_global_in, b_sync_V_in, b_sync_A_in, b_sync_J_in, b_sync_W_in, b_rotate_in, b_best_solution_in, b_hard_vel_limit_in, b_catch_up_in, solution_in, ts_rollout, J_setp_struct, solution_out, T_waypoints, P_rollout, V_rollout, A_rollout, J_rollout, t_rollout);
-//    double t_timing_stop = clock();
-//
-//    ROS_INFO("Elapsed time is %.2fms",(t_timing_stop - t_timing_start)/CLOCKS_PER_SEC*1000);
-//
-//
-//
-//    int rollout_iterations = P_rollout->size[1];
-//    path_rollout.header.stamp = t_header;
-//    path_rollout.poses.resize(rollout_iterations);
-//    for (int i = 0; i < rollout_iterations; i++) {
-//      path_rollout.poses[i].pose.position.x = P_rollout->data[i * P_rollout->size[0] + 0];
-//      path_rollout.poses[i].pose.position.y = P_rollout->data[i * P_rollout->size[0] + 1];
-//      path_rollout.poses[i].pose.position.z = P_rollout->data[i * P_rollout->size[0] + 2];
-//    }
-//    path_pub.publish(path_rollout);
-//
-//    loop_rate.sleep();
-//
-//  }
-//
-//  emxDestroyArray_real_T(J_rollout);
-//  emxDestroyArray_real_T(A_rollout);
-//  emxDestroyArray_real_T(V_rollout);
-//  emxDestroyArray_real_T(P_rollout);
-//  emxDestroyArray_real_T(t_rollout);
-//  emxDestroyArray_real_T(T_waypoints);
-//  emxDestroyArray_int16_T(solution_out);
-//  emxDestroyArray_struct0_T(J_setp_struct);
-//  emxDestroyArray_int16_T(solution_in);
-//  emxDestroyArray_boolean_T(b_catch_up_in);
-//  emxDestroyArray_boolean_T(b_hard_vel_limit_in);
-//  emxDestroyArray_boolean_T(b_best_solution_in);
-//  emxDestroyArray_boolean_T(b_rotate_in);
-//  emxDestroyArray_boolean_T(b_sync_W_in);
-//  emxDestroyArray_boolean_T(b_sync_J_in);
-//  emxDestroyArray_boolean_T(b_sync_A_in);
-//  emxDestroyArray_boolean_T(b_sync_V_in);
-//  emxDestroyArray_real_T(A_global_in);
-//  emxDestroyArray_real_T(J_min_in);
-//  emxDestroyArray_real_T(J_max_in);
-//  emxDestroyArray_real_T(A_min_in);
-//  emxDestroyArray_real_T(A_max_in);
-//  emxDestroyArray_real_T(V_min_in);
-//  emxDestroyArray_real_T(V_max_in);
-//  emxDestroyArray_real_T(Waypoints_in);
-//  emxDestroyArray_real_T(State_start_in);
-//
-//  opt_control_lib_terminate();
-//
-//  return 0;
-//}

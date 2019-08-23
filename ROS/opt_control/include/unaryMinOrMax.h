@@ -20,8 +20,6 @@
 
 /* Function Declarations */
 extern int findFirst(const emxArray_real_T *x);
-extern void minOrMaxRealFloatVectorKernel(const emxArray_real_T *x, int first,
-  int last, double *ex, int *idx);
 
 #endif
 
